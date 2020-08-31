@@ -1,14 +1,13 @@
 const resolvePath = require("./resolvePath");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const AddAssetHtmlWebpackPlugin = require("add-asset-html-webpack-plugin");
 const webpack = require("webpack");
 module.exports = {
   entry: resolvePath("../src/main.js"),
   output: {
     filename: "bundle[hash:4].js",
-    chunkFilename: "chunk/[name]-[hash:4].chunk.js",
+    chunkFilename: "chunk/[name]/[name]-[hash:4].chunk.js",
     path: resolvePath("../dist"),
   },
   optimization: {
@@ -30,7 +29,7 @@ module.exports = {
     },
   },
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx"]
   },
   module: {
     rules: [
@@ -42,22 +41,22 @@ module.exports = {
         },
       },
       {
-        test: /\.css|less$/,
-        exclude: /node_modules/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                localIdentName: "[local]-[name]-[hash:4]",
-              },
-            },
-          },
-          {
-            loader: "less-loader",
-          },
-        ],
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "font/[name]-[hash:4].[ext]"
+          }
+        }
+      },
+      {
+        test: /\.(gif|png|jpg|jpeg|ico)$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "images/[name]-[hash:4].[ext]"
+          }
+        }
       },
     ],
   },
@@ -65,21 +64,18 @@ module.exports = {
     new CleanWebpackPlugin({
       verbose: true,
     }),
-    new MiniCssExtractPlugin({
-      filename: "[name].[hash:4].css",
-      chunkFilename: "[name].css",
-    }),
     new webpack.DllReferencePlugin({
       manifest: resolvePath("../dll/vendor.manifest.json"),
     }),
     new HtmlWebpackPlugin({
       template: resolvePath("../src/public/index.html"),
-      title: "reactApp",
       filename: "index.html",
+      favicon: resolvePath("../src/public/react.jpg"),
       meta: {
         viewport: "width=device-width, initial-scale=1, shrink-to-fit=no",
         // Will generate: <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
       },
+      title: "reactApp",
     }),
     // 将文件自动引入到html中
     new AddAssetHtmlWebpackPlugin({
